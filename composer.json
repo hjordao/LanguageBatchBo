@@ -1,5 +1,5 @@
 {
-    "name": "exam/2015_Q3_senior",
+    "name": "exam/2015_q3_senior",
     "description": "2015 Q3 Senior",
     "require": {
         "phpunit/phpunit": "4.7.*"
