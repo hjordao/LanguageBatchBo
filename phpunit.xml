@@ -1,0 +1,12 @@
+<phpunit
+   colors="true"
+   convertErrorsToExceptions="true"
+   convertNoticesToExceptions="true"
+   convertWarningsToExceptions="true"
+   bootstrap="bootstrap.php">
+   <testsuites>
+      <testsuite name="default">
+         <directory>test_cases</directory>
+      </testsuite>
+   </testsuites>
+</phpunit>
