@@ -18,7 +18,7 @@ The goals are:
 * Commenting is not necessary
 * You can clone this repo, but the homework should be sent to us through email (with the git files)
 
-#Language Batch Bo Description
+#Milestones:
 * v1.0.0 Create a clone of LanguageBatchBo, understand the code and create my own repository.
 * v1.0.1 Execute /src/generate_language_files.php and create tests with PHPUnit
 * v1.0.2 Class hierarchy optimizations and coding standards overview
