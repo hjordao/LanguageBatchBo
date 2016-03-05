@@ -4,13 +4,7 @@ namespace Language;
 
 class LanguageFile
 {
-	/**
-	 * Contains the applications which ones require translations.
-	 *
-	 * @var array
-	 */
-	protected static $applications = array();
-
+	
 	/**
 	 * Starts the language file generation.
 	 *
@@ -19,20 +13,29 @@ class LanguageFile
 	public static function generateLanguageFiles()
 	{
 		// The applications where we need to translate.
-		self::$applications = Config::get('system.translated_applications');
-
-		echo "\nGenerating language files\n";
-		foreach (self::$applications as $application => $languages) {
-			echo "[APPLICATION: " . $application . "]\n";
-			foreach ($languages as $language) {
-				echo "\t[LANGUAGE: " . $language . "]";
-				if (self::getLanguageFile($application, $language)) {
-					echo " OK\n";
+		try {
+			$apps = Config::get('system.translated_applications');
+			if(!empty($apps)) {
+				echo "\nGenerating language files\n";
+				foreach ($apps as $application => $languages) {
+					echo "[APPLICATION: " . $application . "]\n";
+					foreach ($languages as $language) {
+						echo "\t[LANGUAGE: " . $language . "]";
+						if (self::getLanguageFile($application, $language)) {
+							echo " OK\n";
+						} else {
+							throw new \Exception('Unable to generate language file!', 202);
+						}
+					}
 				}
-				else {
-					throw new \Exception('Unable to generate language file!');
-				}
+			} else {
+				throw new \Exception('Empty applications returned from method Config::get', 201);
 			}
+		} catch (\Exception $e) {
+			echo "\n\n[!ERROR: (".$e->getCode().")]"
+				." detected \n\tOn file: ".$e->getFile().","
+				."\n\tAt line: ".$e->getLine().", with message: "
+				.$e->getMessage()."\n\n";
 		}
 	}
 
@@ -62,44 +65,18 @@ class LanguageFile
 		//echo "languageResponse: ".print_r($languageResponse, true)."\n";
 
 		try {
-			ErrorResults::checkForApiErrorResult($languageResponse);
+			ApiErrorResult::checkForApiErrorResult($languageResponse);
 		} catch (\Exception $e) {
 			throw new \Exception('Error during getting language file: (' . $application . '/' . $language . ')');
 		}
 
 		// If we got correct data we store it.
-		$destination = File::checkIfFileExists($application, $language, '.php');
+		$path = File::getLanguageCachePath($application);
+		$destination = File::checkIfFileExists($path, $language, '.php');
+		$fullfilename = $path.'/'.$language.'.php';
 		// Write language translation to destiantion file
-		$result = File::storeLanguageFile($destination, $languageResponse['data']);
-
+		$result = File::storeLanguageFile($fullfilename, $languageResponse['data']);
 		return $result;
 	}
 	
-	/**
-	 * Checks the api call result.
-	 *
-	 * @param mixed  $result   The api call result to check.
-	 *
-	 * @throws Exception   If the api call was not successful.
-	 *
-	 * @return void
-	 */
-	protected static function checkForApiErrorResult($result)
-	{
-		// Error during the api call.
-		if ($result === false || !isset($result['status'])) {
-			throw new \Exception('Error during the api call');
-		}
-		// Wrong response.
-		if ($result['status'] != 'OK') {
-			throw new \Exception('Wrong response: '
-				. (!empty($result['error_type']) ? 'Type(' . $result['error_type'] . ') ' : '')
-				. (!empty($result['error_code']) ? 'Code(' . $result['error_code'] . ') ' : '')
-				. ((string)$result['data']));
-		}
-		// Wrong content.
-		if ($result['data'] === false) {
-			throw new \Exception('Wrong content!');
-		}
-	}
 }
