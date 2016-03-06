@@ -43,10 +43,10 @@ class CheckErrorResults
 				throw new \Exception('Wrong content!', 305);
 			}
 		} catch (\Exception $e) {
-			echo "\n\n[!ERROR: (".$e->getCode().")]"
+			Log::log("\n\n[".Log::colorize("ERROR", 'FAILURE').": (".$e->getCode().")]"
 				." detected \n\tOn file: ".$e->getFile().","
 				."\n\tAt line: ".$e->getLine().", with message: "
-				.$e->getMessage()."\n\n";
+				.$e->getMessage()."\n\n");
 		}
 	}
 	

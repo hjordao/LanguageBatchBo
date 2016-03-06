@@ -48,8 +48,7 @@ class File
 				mkdir(dirname($destination), 0755, true);
 			}
 			catch (\Exception $e) {
-				throw new \Exception('Error creating file path: ' 
-					.$destination.'\n Error Code: ('.$e->getMessage().')!\n', 501);
+				throw new \Exception('Error creating file path: '.$destination.'!\n', 500);
 			}
 			
 		}
@@ -70,7 +69,7 @@ class File
 			$result = file_put_contents($destination, $languageData);
 		} catch (\Exception $e) {
 			throw new \Exception('Unable to write language data:'.$languageData.
-				' to file destination '.$destination.'\nErrorCode:('.$e->getMessage().')!\n');
+				' to file destination '.$destination.'!', 501);
 		}
 		return (bool)$result;
 	}

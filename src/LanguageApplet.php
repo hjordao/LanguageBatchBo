@@ -22,7 +22,8 @@ class LanguageApplet
 		$error = false;
 		try {
 			foreach ($applets as $appletDirectory => $appletLanguageId) {
-				Log::log("[APPLET: ".Log::colorize($appletLanguageId, 'WARNING')."] - [DIR: ".Log::colorize($appletDirectory, 'WARNING')."]\n");
+				Log::log("[APPLET: ".Log::colorize($appletLanguageId, 'WARNING')."]"
+					." - [DIR: ".Log::colorize($appletDirectory, 'WARNING')."]\n");
 				$languages = self::getAppletLanguages($appletLanguageId);
 				if (empty($languages)) {
 					$error = true;
@@ -95,7 +96,7 @@ class LanguageApplet
 		try {	
 			CheckErrorResults::checkForApiErrorResult($result);
 		} catch (\Exception $e) {
-			throw new \Exception('Getting languages for applet (' . $applet . ') was unsuccessful ' . $e->getMessage());
+			throw new \Exception('Getting languages for applet (' . $applet . ') was unsuccessful ', 103);
 		}
 		
 		if (empty($result)) {
@@ -133,7 +134,7 @@ class LanguageApplet
 			CheckErrorResults::checkForApiErrorResult($result);
 		} catch (\Exception $e) {
 			throw new \Exception('Getting language xml for applet: (' . $applet . ')'
-				. ' on language: (' . $language . ') was unsuccessful: ' . $e->getMessage());
+				. ' on language: (' . $language . ') was unsuccessful: ', 104);
 		}
 
 		return $result['data'];

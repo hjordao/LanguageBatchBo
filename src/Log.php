@@ -29,7 +29,7 @@ class Log
 				$out = "[34m"; //Blue
 				break;
 			default:
-				throw new Exception("Invalid status: " . $status);
+				throw new Exception("Invalid status: " . $status, 600);
 		}
 		return chr(27) . "$out" . "$text" . chr(27) . "[0m";
 	}

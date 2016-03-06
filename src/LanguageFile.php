@@ -22,11 +22,12 @@ class LanguageFile
 					Log::log("[APPLICATION: " . Log::colorize($application, 'WARNING') . "]");
 					foreach ($languages as $language) {
 						if (self::getLanguageFile($application, $language)) {
-							Log::log("\t[LANGUAGE: " . Log::colorize($language, 'WARNING') . "] ".Log::colorize("OK", 'SUCCESS'));
+							Log::log("\t[LANGUAGE: " . Log::colorize($language, 'WARNING') . "] ".
+								Log::colorize("OK", 'SUCCESS'));
 						} else {
 							$error = true;
 							Log::log("\t[LANGUAGE: " . $language . "] NOK");
-							throw new \Exception('Unable to generate language file!', 202);
+							throw new \Exception('Unable to generate language file!', 200);
 						}
 					}
 				}
@@ -72,7 +73,8 @@ class LanguageFile
 		try {
 			CheckErrorResults::checkForApiErrorResult($languageResponse);
 		} catch (\Exception $e) {
-			throw new \Exception('Error during getting language file: (' . $application . '/' . $language . ')');
+			throw new \Exception('Error during getting language file: (' 
+				. $application . '/' . $language . ')', 202);
 		}
 
 		// If we got correct data we store it.
