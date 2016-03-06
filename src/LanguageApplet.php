@@ -20,51 +20,54 @@ class LanguageApplet
 
 		echo "\nGenerating applet language XMLs:\n";
 		$error = 0;
-		foreach ($applets as $appletDirectory => $appletLanguageId) {
-			echo "[APPLET: $appletLanguageId] - [DIR: $appletDirectory]\n";
-			$languages = self::getAppletLanguages($appletLanguageId);
-			if (empty($languages)) {
-				$error = 1;
-				throw new \Exception('There is no available languages for the ' . $appletLanguageId . ' applet.', 100);
-			} else {
-				echo "\t[LANGUAGE: " . implode(', ', $languages) . "]";
-			}
-			$path = File::getLanguageCachePath('flash');
-			foreach ($languages as $language) {
-				try {
-					$xmlContent  = self::getAppletLanguageFile($appletLanguageId, $language);
-					if(empty($xmlContent)) {
-						$error = 1;
-						throw new \Exception('There is no XMLContent for applet: ('.$appletLanguageId.')'
-							.' language: ('.$language.')!', 101);
-					} else {
-						$xmlFile = File::checkIfFileExists($path, '/lang_'.$language, '.xml');
-						if (File::storeLanguageFile($xmlFile, $xmlContent)) {
-							echo " OK\n";
-						} else {
-							$error = 1;
-							throw new \Exception('Unable to save applet: ('.$appletLanguageId.')'
-								.'language: ('.$language.') xml ('.$xmlFile.')!', 102);
-						}
-					}
-				} catch (\Exception $e) {
+		try {
+			foreach ($applets as $appletDirectory => $appletLanguageId) {
+				echo "[APPLET: $appletLanguageId] - [DIR: $appletDirectory]\n";
+				$languages = self::getAppletLanguages($appletLanguageId);
+				if (empty($languages)) {
 					$error = 1;
-					echo "\n\n[!ERROR: (".$e->getCode().")]"
-						." detected \n\tOn file: ".$e->getFile().","
-						."\n\tAt line: ".$e->getLine().", with message: "
-						.$e->getMessage()."\n\n";
+					throw new \Exception('There is no available languages for the ' . $appletLanguageId . ' applet.', 100);
+				} else {
+					echo "\t[LANGUAGE: " . implode(', ', $languages) . "]";
+				}
+				$path = File::getLanguageCachePath('flash');
+				foreach ($languages as $language) {
+					
+						$xmlContent  = self::getAppletLanguageFile($appletLanguageId, $language);
+						if(empty($xmlContent)) {
+							$error = 1;
+							throw new \Exception('There is no XMLContent for applet: ('.$appletLanguageId.')'
+								.' language: ('.$language.')!', 101);
+						} else {
+							$xmlFile = File::checkIfFileExists($path, '/lang_'.$language, '.xml');
+							if (File::storeLanguageFile($xmlFile, $xmlContent)) {
+								echo " OK\n";
+							} else {
+								$error = 1;
+								throw new \Exception('Unable to save applet: ('.$appletLanguageId.')'
+									.'language: ('.$language.') xml ('.$xmlFile.')!', 102);
+							}
+						}
+					
+				}
+				echo "\t[XML CACHED: $appletLanguageId] ";
+				if (!$error) {
+					echo "OK\n";
+				} else {
+					echo "NOK\n";
 				}
 			}
-			echo "\t[XML CACHED: $appletLanguageId] ";
-			if (!$error) {
-				echo "OK\n";
-			} else {
-				echo "NOK\n";
-			}
-		}
-		
+		} catch (\Exception $e) {
+					$error = 1;
+					echo "\n\n[ERROR: (".$e->getCode().")]"
+						." detected \n\tOn file: ".$e->getFile().","
+						."\n\tAt line: ".$e->getLine().", with message: "
+						.$e->getMessage()."!\n\n";
+				}
 		if (!$error) {
 			echo "\nApplet language XMLs generated.\n\n";
+		} else {
+			echo "\nError during language XMLs generation.\n\n";
 		}
 	}
 
@@ -76,7 +79,7 @@ class LanguageApplet
 	 * @return array   The list of the available applet languages.
 	 */
 	protected static function getAppletLanguages($applet)
-	{
+	{		
 		$result = ApiCall::call(
 			'system_api',
 			'language_api',
@@ -86,14 +89,17 @@ class LanguageApplet
 			),
 			array('applet' => $applet)
 		);
-
-		try {
+		try {	
 			ApiErrorResult::checkForApiErrorResult($result);
 		} catch (\Exception $e) {
 			throw new \Exception('Getting languages for applet (' . $applet . ') was unsuccessful ' . $e->getMessage());
 		}
-
-		return $result['data'];
+		
+		if (empty($result)) {
+			return;
+		} else {
+			return $result['data'];
+		}
 	}
 
 

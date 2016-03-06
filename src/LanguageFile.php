@@ -75,8 +75,12 @@ class LanguageFile
 		$destination = File::checkIfFileExists($path, $language, '.php');
 		$fullfilename = $path.'/'.$language.'.php';
 		// Write language translation to destiantion file
-		$result = File::storeLanguageFile($fullfilename, $languageResponse['data']);
-		return $result;
+		if(!empty($languageResponse)) {
+			$result = File::storeLanguageFile($fullfilename, $languageResponse['data']);
+			return $result;
+		} else {
+			return $result;
+		}
 	}
 	
 }

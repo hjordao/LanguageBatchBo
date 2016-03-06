@@ -96,7 +96,7 @@ class ApiCall
 	{
 		return [
 			'status' => 'OK',
-			'data'   => $data,
+			'data'   => $data
 		];
 	}
 }
