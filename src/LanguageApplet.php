@@ -18,56 +18,59 @@ class LanguageApplet
 			'memberapplet' => 'JSM2_MemberApplet'
 		);
 
-		echo "\nGenerating applet language XMLs:\n";
-		$error = 0;
+		Log::log(Log::colorize("\nGenerating applet language XMLs:", 'NOTE'));
+		$error = false;
 		try {
 			foreach ($applets as $appletDirectory => $appletLanguageId) {
-				echo "[APPLET: $appletLanguageId] - [DIR: $appletDirectory]\n";
+				Log::log("[APPLET: ".Log::colorize($appletLanguageId, 'WARNING')."] - [DIR: ".Log::colorize($appletDirectory, 'WARNING')."]\n");
 				$languages = self::getAppletLanguages($appletLanguageId);
 				if (empty($languages)) {
-					$error = 1;
+					$error = true;
 					throw new \Exception('There is no available languages for the ' . $appletLanguageId . ' applet.', 100);
-				} else {
-					echo "\t[LANGUAGE: " . implode(', ', $languages) . "]";
 				}
 				$path = File::getLanguageCachePath('flash');
 				foreach ($languages as $language) {
 					
 						$xmlContent  = self::getAppletLanguageFile($appletLanguageId, $language);
 						if(empty($xmlContent)) {
-							$error = 1;
+							$error = true;
 							throw new \Exception('There is no XMLContent for applet: ('.$appletLanguageId.')'
 								.' language: ('.$language.')!', 101);
 						} else {
 							$xmlFile = File::checkIfFileExists($path, '/lang_'.$language, '.xml');
 							if (File::storeLanguageFile($xmlFile, $xmlContent)) {
-								echo " OK\n";
+								Log::log("\t[LANGUAGE: " . Log::colorize(implode(', ', $languages), 'WARNING') 
+									. "] ".Log::colorize("OK", 'SUCCESS'));
 							} else {
-								$error = 1;
+								$error = true;
+								Log::log("\t[LANGUAGE: " . Log::colorize(implode(', ', $languages), 'WARNING') 
+									. "] ".Log::colorize("NOK", 'FAILURE'));
 								throw new \Exception('Unable to save applet: ('.$appletLanguageId.')'
 									.'language: ('.$language.') xml ('.$xmlFile.')!', 102);
 							}
 						}
 					
 				}
-				echo "\t[XML CACHED: $appletLanguageId] ";
+				
 				if (!$error) {
-					echo "OK\n";
+					Log::log("\t[XML CACHED: ".Log::colorize($appletLanguageId, 'WARNING')."] "
+						.Log::colorize("OK", 'SUCCESS'));
 				} else {
-					echo "NOK\n";
+					Log::log("\t[XML CACHED: ".Log::colorize($appletLanguageId, 'WARNING')."] "
+						.Log::colorize("NOK", 'FAILURE'));
 				}
 			}
 		} catch (\Exception $e) {
-					$error = 1;
-					echo "\n\n[ERROR: (".$e->getCode().")]"
-						." detected \n\tOn file: ".$e->getFile().","
-						."\n\tAt line: ".$e->getLine().", with message: "
-						.$e->getMessage()."!\n\n";
-				}
+			$error = true;
+			Log::log("\n\n[".Log::colorize("ERROR", 'FAILURE').": (".$e->getCode().")]"
+				." detected \n\tOn file: ".$e->getFile().","
+				."\n\tAt line: ".$e->getLine().", with message: "
+				.$e->getMessage()."\n\n");
+		}
 		if (!$error) {
-			echo "\nApplet language XMLs generated.\n\n";
+			Log::log(Log::colorize("Applet language XMLs generated.\n", 'NOTE'));
 		} else {
-			echo "\nError during language XMLs generation.\n\n";
+			Log::log(Log::colorize("Error during language XMLs generation.\n", 'FAILURE'));
 		}
 	}
 
@@ -90,7 +93,7 @@ class LanguageApplet
 			array('applet' => $applet)
 		);
 		try {	
-			ApiErrorResult::checkForApiErrorResult($result);
+			CheckErrorResults::checkForApiErrorResult($result);
 		} catch (\Exception $e) {
 			throw new \Exception('Getting languages for applet (' . $applet . ') was unsuccessful ' . $e->getMessage());
 		}
@@ -127,7 +130,7 @@ class LanguageApplet
 		);
 
 		try {
-			ApiErrorResult::checkForApiErrorResult($result);
+			CheckErrorResults::checkForApiErrorResult($result);
 		} catch (\Exception $e) {
 			throw new \Exception('Getting language xml for applet: (' . $applet . ')'
 				. ' on language: (' . $language . ') was unsuccessful: ' . $e->getMessage());

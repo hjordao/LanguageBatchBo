@@ -14,7 +14,9 @@ class File
 	 */
 	public static function getLanguageCachePath($application)
 	{
-		return Config::get('system.paths.root').'/cache/'.$application;
+		$result = Config::get('system.paths.root').'/cache/'.$application;
+		CheckErrorResults::checkForConfigGetErrorResult($result);
+		return $result;
 	}
 	
 	
@@ -43,11 +45,11 @@ class File
 		$destination = $path.'/'.$language.$extension;
 		if (!is_dir(dirname($destination))) {
 			try {
-				mkdir(dirname($destination), 0755, true);//self::checkForApiErrorResult($languageResponse);
+				mkdir(dirname($destination), 0755, true);
 			}
 			catch (\Exception $e) {
 				throw new \Exception('Error creating file path: ' 
-					.$destination.'\n Error Code: ('.$e->getMessage().')!\n');
+					.$destination.'\n Error Code: ('.$e->getMessage().')!\n', 501);
 			}
 			
 		}

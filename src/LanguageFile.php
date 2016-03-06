@@ -14,28 +14,36 @@ class LanguageFile
 	{
 		// The applications where we need to translate.
 		try {
+			$error = false;
 			$apps = Config::get('system.translated_applications');
 			if(!empty($apps)) {
-				echo "\nGenerating language files\n";
+				Log::log(Log::colorize("\nGenerating language PHP files:", 'NOTE'));
 				foreach ($apps as $application => $languages) {
-					echo "[APPLICATION: " . $application . "]\n";
+					Log::log("[APPLICATION: " . Log::colorize($application, 'WARNING') . "]");
 					foreach ($languages as $language) {
-						echo "\t[LANGUAGE: " . $language . "]";
 						if (self::getLanguageFile($application, $language)) {
-							echo " OK\n";
+							Log::log("\t[LANGUAGE: " . Log::colorize($language, 'WARNING') . "] ".Log::colorize("OK", 'SUCCESS'));
 						} else {
+							$error = true;
+							Log::log("\t[LANGUAGE: " . $language . "] NOK");
 							throw new \Exception('Unable to generate language file!', 202);
 						}
 					}
 				}
 			} else {
+				$error = true;
 				throw new \Exception('Empty applications returned from method Config::get', 201);
 			}
 		} catch (\Exception $e) {
-			echo "\n\n[!ERROR: (".$e->getCode().")]"
+			Log::log("\n\n[".Log::colorize("ERROR", 'FAILURE').": (".$e->getCode().")]"
 				." detected \n\tOn file: ".$e->getFile().","
 				."\n\tAt line: ".$e->getLine().", with message: "
-				.$e->getMessage()."\n\n";
+				.$e->getMessage()."\n\n");
+		}
+		if (!$error) {
+			Log::log(Log::colorize("Application language PHPs generated.\n", 'NOTE'));
+		} else {
+			Log::log(Log::colorize("Error during language PHPs generation.\n", 'FAILURE'));
 		}
 	}
 
@@ -61,11 +69,8 @@ class LanguageFile
 			),
 			array('language' => $language)
 		);
-		
-		//echo "languageResponse: ".print_r($languageResponse, true)."\n";
-
 		try {
-			ApiErrorResult::checkForApiErrorResult($languageResponse);
+			CheckErrorResults::checkForApiErrorResult($languageResponse);
 		} catch (\Exception $e) {
 			throw new \Exception('Error during getting language file: (' . $application . '/' . $language . ')');
 		}

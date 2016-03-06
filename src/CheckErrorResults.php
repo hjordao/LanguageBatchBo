@@ -2,7 +2,8 @@
 
 namespace Language;
 
-class ApiErrorResult {
+class CheckErrorResults
+{
 
 	/**
 	 * Checks the api call result.
@@ -48,5 +49,36 @@ class ApiErrorResult {
 				.$e->getMessage()."\n\n";
 		}
 	}
+	
+	/**
+	 * Checks the config get result.
+	 *
+	 * @param mixed  $result   The config get result to check.
+	 *
+	 * @throws Exception   If the config get not successful.
+	 *
+	 * @return void
+	 */
+	public static function checkForConfigGetErrorResult($result)
+	{
+		try {
+			// Error during the config get.
+			if (is_array($result) && ($result === false || empty($result))) {
+				throw new \Exception('Error during the get call', 400);
+			}
+			if (is_string($result) && $result == '') {
+				throw new \Exception('Error during the get call', 401);
+			}
+			if (!isset($result)) {
+				throw new \Exception('Error during the get call', 402);
+			}
+		} catch (\Exception $e) {
+			Log::log("\n\n[".Log::colorize("ERROR", 'FAILURE').": (".$e->getCode().")]"
+				." detected \n\tOn file: ".$e->getFile().","
+				."\n\tAt line: ".$e->getLine().", with message: "
+				.$e->getMessage()."\n\n");
+		}
+	}
+	
 	
 }
